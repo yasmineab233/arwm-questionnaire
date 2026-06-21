@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARWM · Diagnostic Durabilité 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --vert:#1B5E48;--terre:#BE6A41;--eau:#2D6E84;--sauge:#5E8A6F;--safran:#C89A3E;
+  --vert-p:#D9E2D6;--eau-p:#D8E5E8;--terre-p:#F0DCCE;--safran-p:#F0E3C3;
+  --encre:#20241F;--encre-d:#4C5048;--st:#DED3BC;--sp:#EBE3D2;--sf:#F4EEE1;--pk:#FBF8F0;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--sf);color:var(--encre);font-family:'Archivo',sans-serif;font-size:14px;line-height:1.65;padding-bottom:4rem}
+.wrap{max-width:680px;margin:0 auto;padding:2rem 1rem}
+/* LANG BAR */
+.lb{position:sticky;top:0;z-index:100;background:var(--encre);display:flex;align-items:center;justify-content:space-between;padding:.55rem 1.5rem;gap:12px}
+.lb-lbl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#555}
+.lb-btns{display:flex;gap:5px}
+.lb-btn{padding:4px 13px;font-size:10.5px;font-family:'Archivo',sans-serif;border:1px solid #3A3A38;cursor:pointer;background:transparent;color:#888;letter-spacing:.04em;transition:all .15s}
+.lb-btn:hover{border-color:#666;color:#ccc}
+.lb-btn.active{background:var(--sf);border-color:var(--sf);color:var(--encre);font-weight:700}
+/* PROGRESS */
+.prog-wrap{margin-bottom:2rem}
+.prog-meta{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--encre-d);margin-bottom:5px}
+.prog-track{height:1.5px;background:var(--sp)}
+.prog-fill{height:100%;background:var(--encre);transition:width .3s;width:0}
+/* DOC HEADER */
+.doc-hdr{border-bottom:1.5px solid var(--encre);padding-bottom:1.5rem;margin-bottom:2rem}
+.doc-lbl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--encre-d);margin-bottom:.45rem}
+.doc-title{font-size:26px;font-weight:700;line-height:1.2;color:var(--encre);margin-bottom:.35rem}
+.doc-sub{font-family:'Spectral',serif;font-style:italic;font-size:13px;color:var(--encre-d)}
+/* INTRO */
+.intro-box{background:var(--pk);border:1px solid var(--st);padding:1.25rem 1.5rem;margin-bottom:1.25rem}
+.intro-box p{font-family:'Spectral',serif;font-size:13.5px;line-height:1.8;color:var(--encre-d)}
+.note-bar{background:var(--safran-p);border-left:3px solid var(--safran);padding:.875rem 1.25rem;margin-bottom:1.75rem}
+.note-bar p{font-size:13px;color:#4A3400;line-height:1.6}
+/* PROFILE */
+.pf-lbl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--encre-d);font-weight:700;margin-bottom:.6rem}
+.pf-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:2rem}
+.pf-field{display:flex;flex-direction:column;gap:3px}
+.pf-field label{font-size:9px;color:var(--encre-d);text-transform:uppercase;letter-spacing:.08em}
+.pf-field input,.pf-field select{height:33px;border:1px solid var(--st);padding:0 9px;font-size:13px;font-family:'Archivo',sans-serif;color:var(--encre);background:var(--pk);outline:none;-webkit-appearance:none;transition:border .12s}
+.pf-field input:focus,.pf-field select:focus{border-color:var(--encre-d)}
+/* SECTION DIVIDERS */
+.sec-div{margin:2.5rem 0 .75rem;display:flex;align-items:center;gap:12px}
+.sec-pill{display:flex;align-items:center;gap:10px;padding:0 0 0 12px;flex-shrink:0}
+.sec-num{font-size:11px;font-weight:700;opacity:.4}
+.sec-title{font-size:17px;font-weight:700}
+.sec-desc{font-family:'Spectral',serif;font-style:italic;font-size:13.5px;color:var(--encre-d);margin-bottom:1.125rem;line-height:1.7}
+/* Pillar color classes */
+.pv .sec-pill{border-left:3px solid var(--vert)} .pv .sec-num,.pv .sec-title{color:var(--vert)}
+.pt .sec-pill{border-left:3px solid var(--terre)} .pt .sec-num,.pt .sec-title{color:var(--terre)}
+.pe .sec-pill{border-left:3px solid var(--eau)} .pe .sec-num,.pe .sec-title{color:var(--eau)}
+.ps .sec-pill{border-left:3px solid var(--sauge)} .ps .sec-num,.ps .sec-title{color:var(--sauge)}
+.pf .sec-pill{border-left:3px solid var(--safran)} .pf .sec-num,.pf .sec-title{color:var(--safran)}
+/* QUESTION CARDS */
+.q-card{background:var(--pk);border:1px solid var(--st);padding:.875rem 1.125rem;margin-bottom:.5rem;transition:border-color .12s}
+.q-card:hover{border-color:var(--sp)}
+.q-row{display:flex;align-items:flex-start;gap:11px}
+.q-num{font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--encre-d);min-width:26px;padding-top:2px;flex-shrink:0}
+.q-body{flex:1}
+.q-text{font-family:'Spectral',serif;font-size:13.5px;line-height:1.6;color:var(--encre)}
+.q-note{font-family:'Spectral',serif;font-style:italic;font-size:12px;color:var(--encre-d);margin-top:3px}
+.q-pts{font-size:9px;background:var(--sp);color:var(--encre-d);padding:2px 6px;margin-left:auto;flex-shrink:0;letter-spacing:.04em}
+.q-opts{display:flex;flex-direction:column;gap:4px;margin-top:.7rem;margin-left:37px}
+.q-btn{display:flex;align-items:flex-start;gap:8px;padding:7px 11px;font-family:'Spectral',serif;font-size:13px;border:1px solid var(--st);cursor:pointer;background:transparent;color:var(--encre-d);text-align:left;line-height:1.45;transition:all .12s;width:100%}
+.q-btn:hover{border-color:var(--sp);background:var(--sf);color:var(--encre)}
+.opt-l{font-family:'Archivo',sans-serif;font-size:9.5px;font-weight:700;width:15px;height:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.opt-l.a{background:#C5E0A8;color:#1A4A00}.opt-l.b{background:#F5DFB0;color:#5A3800}.opt-l.c{background:#F0CCCC;color:#5A1010}
+.q-btn.sel-a{background:#EAF4D4;border-color:#7AB840;color:#1A4A00}
+.q-btn.sel-b{background:#FBF0D5;border-color:#B89020;color:#5A3800}
+.q-btn.sel-c{background:#F9E0E0;border-color:#B84040;color:#5A1010}
+.q-open{margin-top:.7rem;margin-left:37px}
+.q-open-lbl{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--encre-d);margin-bottom:4px}
+.q-open textarea{width:100%;height:68px;border:1px solid var(--st);padding:7px 10px;font-size:13px;font-family:'Spectral',serif;color:var(--encre);background:var(--pk);resize:vertical;outline:none;transition:border .12s}
+.q-open textarea:focus{border-color:var(--encre-d)}
+/* CTA */
+.cta-wrap{display:flex;justify-content:center;margin-top:2.5rem}
+.cta-btn{padding:11px 30px;font-size:11px;font-family:'Archivo',sans-serif;font-weight:700;letter-spacing:.12em;border:2px solid var(--encre);cursor:pointer;background:var(--encre);color:var(--sf);text-transform:uppercase;transition:all .15s}
+.cta-btn:hover{background:var(--sf);color:var(--encre)}
+/* ══ RESULTS ══ */
+.res-wrap{margin-top:3rem;display:none}
+.res-wrap.show{display:block}
+.res-lbl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--encre-d);margin:2rem 0 .75rem;padding-top:1.75rem;border-top:1px solid var(--st)}
+/* Gate */
+.gate{padding:1.125rem 1.5rem;border:1.5px solid;margin-bottom:1.375rem}
+.gate.closed{border-color:var(--terre);background:var(--terre-p)}.gate.indet{border-color:var(--safran);background:var(--safran-p)}.gate.open{border-color:var(--vert);background:var(--vert-p)}
+.gate-lbl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-bottom:.5rem}
+.gate.closed .gate-lbl{color:var(--terre)}.gate.indet .gate-lbl{color:#7A5A00}.gate.open .gate-lbl{color:var(--vert)}
+.gate-body{font-family:'Spectral',serif;font-size:13px;line-height:1.75;color:var(--encre)}
+/* Score cells */
+.score-cells{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:1.25rem}
+.sc{background:var(--pk);border:1px solid var(--st);padding:.75rem 1rem}
+.sc-lbl{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--encre-d);margin-bottom:3px}
+.sc-val{font-size:20px;font-weight:700;color:var(--encre);line-height:1}
+.sc-sub{font-family:'Spectral',serif;font-style:italic;font-size:11px;color:var(--encre-d);margin-top:2px}
+/* Level badge */
+.lvl{display:flex;align-items:flex-start;gap:14px;padding:1.125rem 1.5rem;border:1.5px solid;margin-bottom:1.5rem}
+.lvl-icon{font-size:26px;flex-shrink:0;line-height:1}
+.lvl-name{font-size:17px;font-weight:700;margin-bottom:2px}
+.lvl-note{font-family:'Spectral',serif;font-style:italic;font-size:12px;color:var(--encre-d)}
+.lvl.blocked{border-color:var(--terre);background:var(--terre-p)}.lvl.blocked .lvl-name{color:var(--terre)}
+.lvl.bronze{border-color:#BE8A55;background:#FFF5EC}.lvl.bronze .lvl-name{color:#7A4A10}
+.lvl.silver{border-color:#8A9AA8;background:#F3F5F8}.lvl.silver .lvl-name{color:#404E5A}
+.lvl.gold{border-color:var(--safran);background:var(--safran-p)}.lvl.gold .lvl-name{color:#7A5A00}
+/* Pillar bars */
+.pbar-row{margin-bottom:.875rem}
+.pbar-meta{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;margin-bottom:3px}
+.pbar-name{font-weight:600}
+.pbar-info{font-size:10px;letter-spacing:.03em;color:var(--encre-d)}
+.pbar-track{height:8px;background:var(--sp);display:flex}
+.pbar-m{height:100%;transition:width .5s}
+.pbar-g{height:100%;opacity:.4;transition:width .5s .15s}
+.pbar-leg{display:flex;gap:14px;font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--encre-d);margin-top:2px}
+/* Mandatory gap list */
+.mgap-list{display:flex;flex-direction:column;gap:5px}
+.mgap-item{display:flex;align-items:flex-start;gap:10px;padding:.6rem .875rem;background:var(--terre-p);border-left:3px solid var(--terre)}
+.mgap-code{font-size:9px;font-weight:700;color:var(--terre);letter-spacing:.06em;min-width:36px;flex-shrink:0;padding-top:2px}
+.crit-tag{display:inline-block;font-size:8.5px;font-weight:700;padding:1px 5px;letter-spacing:.04em;margin-right:3px}
+.crit-tag.mu{background:var(--terre-p);color:var(--terre);border:1px solid var(--terre)}
+.crit-tag.mp{background:var(--safran-p);color:#7A5A00;border:1px solid var(--safran)}
+.mgap-title{font-family:'Spectral',serif;font-size:13px;color:var(--encre);margin-top:2px}
+/* Tier groups */
+.tier-group{margin-bottom:1.5rem}
+.tier-hdr{display:flex;align-items:center;gap:10px;margin-bottom:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--st)}
+.tier-bdg{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:3px 8px}
+.tier-cnt{font-size:11px;color:var(--encre-d)}
+.tier-desc{font-family:'Spectral',serif;font-style:italic;font-size:12px;color:var(--encre-d);margin-bottom:.625rem}
+.tier-collapsed{font-family:'Spectral',serif;font-style:italic;font-size:12.5px;color:var(--encre-d);background:var(--sp);border:1px solid var(--st);padding:.625rem 1rem;margin-top:.5rem}
+/* Fiche cards */
+.fiche-card{background:var(--pk);border:1px solid var(--st);margin-bottom:.5rem;display:flex;overflow:hidden}
+.fiche-bar{width:4px;flex-shrink:0}
+.fiche-inner{flex:1;padding:.875rem 1rem}
+.fiche-hdr{display:flex;align-items:center;gap:8px;margin-bottom:.5rem;flex-wrap:wrap}
+.fiche-code{font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--encre-d);background:var(--sp);padding:2px 6px}
+.fiche-plbl{font-size:9px;color:var(--encre-d);letter-spacing:.02em}
+.fiche-title{font-weight:600;font-size:13.5px;color:var(--encre);margin-bottom:.625rem;line-height:1.4}
+/* Notation bandeau */
+.notation{display:flex;border:1px solid var(--st);margin-bottom:.5rem}
+.ind{flex:1;padding:5px 3px;border-right:1px solid var(--st);text-align:center;min-width:0}
+.ind:last-child{border-right:none}
+.ind-l{font-size:7px;letter-spacing:.08em;text-transform:uppercase;color:var(--encre-d);margin-bottom:2px}
+.ind-d{display:flex;justify-content:center;gap:2px;margin-bottom:2px}
+.ind-v{font-size:7.5px;color:var(--encre-d);font-weight:600}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0}
+.dot.on{background:currentColor}.dot.off{border:1.5px solid currentColor;background:transparent;width:5px;height:5px}
+/* Fiche badges */
+.fiche-bdgs{display:flex;flex-wrap:wrap;gap:4px;margin-top:.5rem}
+.fbdg{font-size:8px;font-weight:500;padding:2px 7px;border:1px solid;border-radius:9999px;letter-spacing:.03em}
+/* Unknown section */
+.unk-list{border:1px solid var(--st);opacity:.7}
+.unk-item{display:flex;align-items:center;gap:10px;padding:.5rem .875rem;border-bottom:1px solid var(--st);font-size:13px}
+.unk-item:last-child{border-bottom:none}
+.unk-code{font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--encre-d);min-width:38px;flex-shrink:0}
+.unk-title{font-family:'Spectral',serif;color:var(--encre-d)}
+/* Q20 result */
+.q20-res{background:var(--vert-p);border-left:3px solid var(--vert);padding:.875rem 1.25rem}
+.q20-res-lbl{font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--vert);margin-bottom:.375rem}
+.q20-res-text{font-family:'Spectral',serif;font-style:italic;font-size:14px;color:var(--encre);line-height:1.7}
+/* Share */
+.share-wrap{display:flex;justify-content:center;margin-top:1.5rem}
+.share-btn{padding:8px 20px;font-size:10px;font-family:'Archivo',sans-serif;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--st);cursor:pointer;background:var(--pk);color:var(--encre-d);transition:all .15s}
+.share-btn:hover{border-color:var(--encre-d);color:var(--encre)}
+/* KEY SECTION */
+.key-sec{margin-top:2.5rem;border-top:1px solid var(--st);padding-top:1.75rem}
+.key-title{font-size:15px;font-weight:700;margin-bottom:1rem}
+.key-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.5rem}
+.key-card{border:1px solid;padding:.875rem 1rem}
+.key-bdg{font-size:8.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;display:inline-block;margin-bottom:.35rem}
+.key-card h4{font-size:13px;font-weight:700;color:var(--encre);margin-bottom:3px}
+.key-card p{font-family:'Spectral',serif;font-size:12px;color:var(--encre-d);line-height:1.5}
+.key-card.bronze{background:#FFF5EC;border-color:#BE8A55}.key-card.bronze .key-bdg{background:#FFE0CC;color:#7A3800}
+.key-card.silver{background:#F3F5F8;border-color:#8A9AA8}.key-card.silver .key-bdg{background:#DDE0E8;color:#404E5A}
+.key-card.gold{background:var(--safran-p);border-color:var(--safran)}.key-card.gold .key-bdg{background:#FFE890;color:#5A4000}
+.pl-lbl{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--encre-d);font-weight:700;margin-bottom:.4rem}
+.pl-items{display:flex;flex-direction:column;gap:.45rem;margin-bottom:1.25rem}
+.pl-item{display:flex;align-items:flex-start;gap:8px;font-family:'Spectral',serif;font-size:13px;color:var(--encre-d)}
+.pl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.fn-box{background:var(--sp);border:1px solid var(--st);padding:.875rem 1.25rem}
+.fn-box p{font-family:'Spectral',serif;font-style:italic;font-size:13px;color:var(--encre-d);line-height:1.65}
+/* RTL */
+html[lang="ar"]{direction:rtl}
+html[lang="ar"] body{font-family:'Segoe UI','Arial',sans-serif}
+html[lang="ar"] .note-bar{border-left:none;border-right:3px solid var(--safran)}
+html[lang="ar"] .pv .sec-pill,.pf .sec-pill,.pt .sec-pill,.pe .sec-pill,.ps .sec-pill{border-left:none;padding-left:0;border-right:3px solid;padding-right:12px}
+html[lang="ar"] .pv .sec-pill{border-right-color:var(--vert)}
+html[lang="ar"] .pt .sec-pill{border-right-color:var(--terre)}
+html[lang="ar"] .pe .sec-pill{border-right-color:var(--eau)}
+html[lang="ar"] .ps .sec-pill{border-right-color:var(--sauge)}
+html[lang="ar"] .pf .sec-pill{border-right-color:var(--safran)}
+html[lang="ar"] .q-opts{margin-left:0;margin-right:37px}
+html[lang="ar"] .q-open{margin-left:0;margin-right:37px}
+html[lang="ar"] .q-row{flex-direction:row-reverse}
+html[lang="ar"] .q-pts{margin-left:0;margin-right:auto}
+html[lang="ar"] .q-btn{flex-direction:row-reverse;text-align:right}
+html[lang="ar"] .mgap-item{border-left:none;border-right:3px solid var(--terre)}
+html[lang="ar"] .q20-res{border-left:none;border-right:3px solid var(--vert)}
+@media(max-width:520px){
+  .key-grid,.score-cells{grid-template-columns:1fr}
+  .pf-grid{grid-template-columns:1fr}
+  .notation{flex-wrap:wrap}
+  .ind{min-width:30%}
+  .lb-lbl{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="lb">
+  <span class="lb-lbl">Langue / Language / اللغة</span>
+  <div class="lb-btns">
+    <button class="lb-btn active" onclick="setLang('fr')">Français</button>
+    <button class="lb-btn" onclick="setLang('en')">English</button>
+    <button class="lb-btn" onclick="setLang('ar')">العربية</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+<div class="prog-wrap">
+  <div class="prog-meta"><span id="progL">0 / 19</span><span id="progP">0 %</span></div>
+  <div class="prog-track"><div class="prog-fill" id="progF"></div></div>
+</div>
+
+<div class="doc-hdr">
+  <div class="doc-lbl" data-i18n="label"></div>
+  <div class="doc-title" data-i18n="title"></div>
+  <div class="doc-sub" data-i18n="sub"></div>
+</div>
+
+<div class="intro-box"><p data-i18n="intro"></p></div>
+<div class="note-bar"><p data-i18n="note"></p></div>
+
+<div class="pf-lbl" data-i18n="pfLabel"></div>
+<div class="pf-grid">
+  <div class="pf-field"><label data-i18n="pf_name"></label><input type="text" id="pf_name" data-phi="pf_name_ph"></div>
+  <div class="pf-field"><label data-i18n="pf_resp"></label><input type="text" id="pf_resp" data-phi="pf_resp_ph"></div>
+  <div class="pf-field"><label data-i18n="pf_role"></label><input type="text" id="pf_role" data-phi="pf_role_ph"></div>
+  <div class="pf-field"><label data-i18n="pf_date"></label><input type="date" id="pf_date"></div>
+  <div class="pf-field"><label data-i18n="pf_covers"></label><input type="number" id="pf_covers" min="1" max="2000" data-phi="pf_covers_ph"></div>
+  <div class="pf-field">
+    <label data-i18n="pf_type"></label>
+    <select id="pf_pos">
+      <option value="" data-i18n="pos_0"></option>
+      <option value="A" data-i18n="pos_A"></option>
+      <option value="B" data-i18n="pos_B"></option>
+      <option value="C" data-i18n="pos_C"></option>
+    </select>
+  </div>
+</div>
+
+<!-- P1 DÉCHETS -->
+<div class="sec-div pt"><div class="sec-pill"><span class="sec-num">01</span><span class="sec-title" data-i18n="p1_title"></span></div></div>
+<div class="sec-desc" data-i18n="p1_desc"></div>
+<div class="q-card" id="q1"><div class="q-row"><span class="q-num">Q1</span><div class="q-body"><div class="q-text" data-i18n="q1_t"></div><div class="q-note" data-i18n="q1_n"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q1','a',2)"><span class="opt-l a">A</span><span data-i18n="q1a"></span></button><button class="q-btn" onclick="sel('q1','b',1)"><span class="opt-l b">B</span><span data-i18n="q1b"></span></button><button class="q-btn" onclick="sel('q1','c',0)"><span class="opt-l c">C</span><span data-i18n="q1c"></span></button></div></div>
+<div class="q-card" id="q2"><div class="q-row"><span class="q-num">Q2</span><div class="q-body"><div class="q-text" data-i18n="q2_t"></div><div class="q-note" data-i18n="q2_n"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q2','a',2)"><span class="opt-l a">A</span><span data-i18n="q2a"></span></button><button class="q-btn" onclick="sel('q2','b',1)"><span class="opt-l b">B</span><span data-i18n="q2b"></span></button><button class="q-btn" onclick="sel('q2','c',0)"><span class="opt-l c">C</span><span data-i18n="q2c"></span></button></div></div>
+<div class="q-card" id="q3"><div class="q-row"><span class="q-num">Q3</span><div class="q-body"><div class="q-text" data-i18n="q3_t"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q3','a',2)"><span class="opt-l a">A</span><span data-i18n="q3a"></span></button><button class="q-btn" onclick="sel('q3','b',1)"><span class="opt-l b">B</span><span data-i18n="q3b"></span></button><button class="q-btn" onclick="sel('q3','c',0)"><span class="opt-l c">C</span><span data-i18n="q3c"></span></button></div></div>
+<div class="q-card" id="q4"><div class="q-row"><span class="q-num">Q4</span><div class="q-body"><div class="q-text" data-i18n="q4_t"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q4','a',2)"><span class="opt-l a">A</span><span data-i18n="q4a"></span></button><button class="q-btn" onclick="sel('q4','b',1)"><span class="opt-l b">B</span><span data-i18n="q4b"></span></button><button class="q-btn" onclick="sel('q4','c',0)"><span class="opt-l c">C</span><span data-i18n="q4c"></span></button></div></div>
+
+<!-- P2 EAU -->
+<div class="sec-div pe"><div class="sec-pill"><span class="sec-num">02</span><span class="sec-title" data-i18n="p2_title"></span></div></div>
+<div class="sec-desc" data-i18n="p2_desc"></div>
+<div class="q-card" id="q5"><div class="q-row"><span class="q-num">Q5</span><div class="q-body"><div class="q-text" data-i18n="q5_t"></div><div class="q-note" data-i18n="q5_n"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q5','a',2)"><span class="opt-l a">A</span><span data-i18n="q5a"></span></button><button class="q-btn" onclick="sel('q5','b',1)"><span class="opt-l b">B</span><span data-i18n="q5b"></span></button><button class="q-btn" onclick="sel('q5','c',0)"><span class="opt-l c">C</span><span data-i18n="q5c"></span></button></div></div>
+<div class="q-card" id="q6"><div class="q-row"><span class="q-num">Q6</span><div class="q-body"><div class="q-text" data-i18n="q6_t"></div><div class="q-note" data-i18n="q6_n"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q6','a',2)"><span class="opt-l a">A</span><span data-i18n="q6a"></span></button><button class="q-btn" onclick="sel('q6','b',1)"><span class="opt-l b">B</span><span data-i18n="q6b"></span></button><button class="q-btn" onclick="sel('q6','c',0)"><span class="opt-l c">C</span><span data-i18n="q6c"></span></button></div></div>
+<div class="q-card" id="q7"><div class="q-row"><span class="q-num">Q7</span><div class="q-body"><div class="q-text" data-i18n="q7_t"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q7','a',2)"><span class="opt-l a">A</span><span data-i18n="q7a"></span></button><button class="q-btn" onclick="sel('q7','b',1)"><span class="opt-l b">B</span><span data-i18n="q7b"></span></button><button class="q-btn" onclick="sel('q7','c',0)"><span class="opt-l c">C</span><span data-i18n="q7c"></span></button></div></div>
+<div class="q-card" id="q8"><div class="q-row"><span class="q-num">Q8</span><div class="q-body"><div class="q-text" data-i18n="q8_t"></div><div class="q-note" data-i18n="q8_n"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q8','a',2)"><span class="opt-l a">A</span><span data-i18n="q8a"></span></button><button class="q-btn" onclick="sel('q8','b',1)"><span class="opt-l b">B</span><span data-i18n="q8b"></span></button><button class="q-btn" onclick="sel('q8','c',0)"><span class="opt-l c">C</span><span data-i18n="q8c"></span></button></div></div>
+
+<!-- P3 APPROVISIONNEMENT -->
+<div class="sec-div ps"><div class="sec-pill"><span class="sec-num">03</span><span class="sec-title" data-i18n="p3_title"></span></div></div>
+<div class="sec-desc" data-i18n="p3_desc"></div>
+<div class="q-card" id="q9"><div class="q-row"><span class="q-num">Q9</span><div class="q-body"><div class="q-text" data-i18n="q9_t"></div><div class="q-note" data-i18n="q9_n"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q9','a',2)"><span class="opt-l a">A</span><span data-i18n="q9a"></span></button><button class="q-btn" onclick="sel('q9','b',1)"><span class="opt-l b">B</span><span data-i18n="q9b"></span></button><button class="q-btn" onclick="sel('q9','c',0)"><span class="opt-l c">C</span><span data-i18n="q9c"></span></button></div></div>
+<div class="q-card" id="q10"><div class="q-row"><span class="q-num">Q10</span><div class="q-body"><div class="q-text" data-i18n="q10_t"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q10','a',2)"><span class="opt-l a">A</span><span data-i18n="q10a"></span></button><button class="q-btn" onclick="sel('q10','b',1)"><span class="opt-l b">B</span><span data-i18n="q10b"></span></button><button class="q-btn" onclick="sel('q10','c',0)"><span class="opt-l c">C</span><span data-i18n="q10c"></span></button></div></div>
+<div class="q-card" id="q11"><div class="q-row"><span class="q-num">Q11</span><div class="q-body"><div class="q-text" data-i18n="q11_t"></div><div class="q-note" data-i18n="q11_n"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q11','a',2)"><span class="opt-l a">A</span><span data-i18n="q11a"></span></button><button class="q-btn" onclick="sel('q11','b',1)"><span class="opt-l b">B</span><span data-i18n="q11b"></span></button><button class="q-btn" onclick="sel('q11','c',0)"><span class="opt-l c">C</span><span data-i18n="q11c"></span></button></div></div>
+<div class="q-card" id="q12"><div class="q-row"><span class="q-num">Q12</span><div class="q-body"><div class="q-text" data-i18n="q12_t"></div><div class="q-note" data-i18n="q12_n"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q12','a',2)"><span class="opt-l a">A</span><span data-i18n="q12a"></span></button><button class="q-btn" onclick="sel('q12','b',1)"><span class="opt-l b">B</span><span data-i18n="q12b"></span></button><button class="q-btn" onclick="sel('q12','c',0)"><span class="opt-l c">C</span><span data-i18n="q12c"></span></button></div></div>
+
+<!-- P4 ÉQUIPES -->
+<div class="sec-div pf"><div class="sec-pill"><span class="sec-num">04</span><span class="sec-title" data-i18n="p4_title"></span></div></div>
+<div class="sec-desc" data-i18n="p4_desc"></div>
+<div class="q-card" id="q13"><div class="q-row"><span class="q-num">Q13</span><div class="q-body"><div class="q-text" data-i18n="q13_t"></div><div class="q-note" data-i18n="q13_n"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q13','a',2)"><span class="opt-l a">A</span><span data-i18n="q13a"></span></button><button class="q-btn" onclick="sel('q13','b',1)"><span class="opt-l b">B</span><span data-i18n="q13b"></span></button><button class="q-btn" onclick="sel('q13','c',0)"><span class="opt-l c">C</span><span data-i18n="q13c"></span></button></div></div>
+<div class="q-card" id="q14"><div class="q-row"><span class="q-num">Q14</span><div class="q-body"><div class="q-text" data-i18n="q14_t"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q14','a',2)"><span class="opt-l a">A</span><span data-i18n="q14a"></span></button><button class="q-btn" onclick="sel('q14','b',1)"><span class="opt-l b">B</span><span data-i18n="q14b"></span></button><button class="q-btn" onclick="sel('q14','c',0)"><span class="opt-l c">C</span><span data-i18n="q14c"></span></button></div></div>
+<div class="q-card" id="q15"><div class="q-row"><span class="q-num">Q15</span><div class="q-body"><div class="q-text" data-i18n="q15_t"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q15','a',2)"><span class="opt-l a">A</span><span data-i18n="q15a"></span></button><button class="q-btn" onclick="sel('q15','b',1)"><span class="opt-l b">B</span><span data-i18n="q15b"></span></button><button class="q-btn" onclick="sel('q15','c',0)"><span class="opt-l c">C</span><span data-i18n="q15c"></span></button></div></div>
+<div class="q-card" id="q16"><div class="q-row"><span class="q-num">Q16</span><div class="q-body"><div class="q-text" data-i18n="q16_t"></div><div class="q-note" data-i18n="q16_n"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q16','a',2)"><span class="opt-l a">A</span><span data-i18n="q16a"></span></button><button class="q-btn" onclick="sel('q16','b',1)"><span class="opt-l b">B</span><span data-i18n="q16b"></span></button><button class="q-btn" onclick="sel('q16','c',0)"><span class="opt-l c">C</span><span data-i18n="q16c"></span></button></div></div>
+
+<!-- P5 MESURE -->
+<div class="sec-div pv"><div class="sec-pill"><span class="sec-num">05</span><span class="sec-title" data-i18n="p5_title"></span></div></div>
+<div class="sec-desc" data-i18n="p5_desc"></div>
+<div class="q-card" id="q17"><div class="q-row"><span class="q-num">Q17</span><div class="q-body"><div class="q-text" data-i18n="q17_t"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q17','a',2)"><span class="opt-l a">A</span><span data-i18n="q17a"></span></button><button class="q-btn" onclick="sel('q17','b',1)"><span class="opt-l b">B</span><span data-i18n="q17b"></span></button><button class="q-btn" onclick="sel('q17','c',0)"><span class="opt-l c">C</span><span data-i18n="q17c"></span></button></div></div>
+<div class="q-card" id="q18"><div class="q-row"><span class="q-num">Q18</span><div class="q-body"><div class="q-text" data-i18n="q18_t"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q18','a',2)"><span class="opt-l a">A</span><span data-i18n="q18a"></span></button><button class="q-btn" onclick="sel('q18','b',1)"><span class="opt-l b">B</span><span data-i18n="q18b"></span></button><button class="q-btn" onclick="sel('q18','c',0)"><span class="opt-l c">C</span><span data-i18n="q18c"></span></button></div></div>
+<div class="q-card" id="q19"><div class="q-row"><span class="q-num">Q19</span><div class="q-body"><div class="q-text" data-i18n="q19_t"></div></div><span class="q-pts">/ 2</span></div><div class="q-opts"><button class="q-btn" onclick="sel('q19','a',2)"><span class="opt-l a">A</span><span data-i18n="q19a"></span></button><button class="q-btn" onclick="sel('q19','b',1)"><span class="opt-l b">B</span><span data-i18n="q19b"></span></button><button class="q-btn" onclick="sel('q19','c',0)"><span class="opt-l c">C</span><span data-i18n="q19c"></span></button></div></div>
+
+<div class="q-card" id="q20">
+  <div class="q-row"><span class="q-num">Q20</span><div class="q-body"><div class="q-text" data-i18n="q20_t"></div><div class="q-note" data-i18n="q20_n"></div></div></div>
+  <div class="q-open"><div class="q-open-lbl" data-i18n="q20_lbl"></div><textarea id="q20text" data-phi="q20_ph"></textarea></div>
+</div>
+
+<div class="cta-wrap"><button class="cta-btn" onclick="calculate()" data-i18n="calcBtn"></button></div>
+
+<!-- ════ RESULTS ════ -->
+<div class="res-wrap" id="resWrap">
+  <div id="rGate"></div>
+  <div class="score-cells" id="rScore"></div>
+  <div id="rLevel"></div>
+  <div class="res-lbl">Performance par pilier — périmètre évalué</div>
+  <div id="rPillars"></div>
+  <div id="rGaps"></div>
+  <div id="rReco"></div>
+  <div id="rQ20"></div>
+  <div class="share-wrap"><button class="share-btn" id="shareBtn" onclick="copyResult()">📋 Copier les résultats</button></div>
+</div>
+
+<!-- KEY -->
+<div class="key-sec">
+  <div class="key-title" data-i18n="keyTitle"></div>
+  <div class="key-grid">
+    <div class="key-card bronze"><div class="key-bdg">🥉 Bronze</div><h4 data-i18n="br_range"></h4><p data-i18n="br_desc"></p></div>
+    <div class="key-card silver"><div class="key-bdg">🥈 Argent</div><h4 data-i18n="si_range"></h4><p data-i18n="si_desc"></p></div>
+    <div class="key-card gold"><div class="key-bdg">🥇 Or</div><h4 data-i18n="go_range"></h4><p data-i18n="go_desc"></p></div>
+  </div>
+  <div class="pl-lbl" data-i18n="plLbl"></div>
+  <div class="pl-items">
+    <div class="pl-item"><div class="pl-dot" style="background:var(--vert)"></div><span data-i18n="pl1"></span></div>
+    <div class="pl-item"><div class="pl-dot" style="background:var(--terre)"></div><span data-i18n="pl2"></span></div>
+    <div class="pl-item"><div class="pl-dot" style="background:var(--eau)"></div><span data-i18n="pl3"></span></div>
+    <div class="pl-item"><div class="pl-dot" style="background:var(--sauge)"></div><span data-i18n="pl4"></span></div>
+    <div class="pl-item"><div class="pl-dot" style="background:var(--safran)"></div><span data-i18n="pl5"></span></div>
+  </div>
+  <div class="fn-box"><p data-i18n="footnote"></p></div>
+</div>
+
+</div>
+
+<script>
+/* ══ FICHE DATA ══
+   [title, pillar, criteria[], type(m/g/x), inv(1-3), cplx(1-3), impact(1-4), roi(1-4), horizon(1-3), badges[]]
+   badge codes: a=Contexte marocain b=Eau c=Économies immédiates d=Approv.local e=Déchets f=Mesurable g=Partenaire local h=Réplication
+*/
+const F=(t,p,c,tp,iv,cx,im,ro,ho,b)=>({t,p,c,tp,iv,cx,im,ro,ho,b});
+const FICHES={
+'G-01':F("Lancer la politique environnementale et mobiliser l'équipe",'P1',['M01','M02'],'m',1,1,3,1,1,['a','c']),
+'G-02':F("Piloter les consommations et maintenir les équipements",'P1',['M03','M04'],'m',1,1,3,1,1,['f']),
+'G-03':F("Mesurer les progrès et viser la certification externe",'P1',['M05','G06'],'x',2,2,3,2,2,[]),
+'G-04':F("Communiquer de façon crédible et choisir des prestataires responsables",'P1',['G07','G08'],'g',1,1,2,1,1,[]),
+'D-01':F("Réduire le gaspillage alimentaire",'P2',['M13','G16'],'x',1,2,3,2,1,['e','c','f']),
+'D-02':F("Trier à la source et organiser la collecte séparée",'P2',['M11','M12'],'m',1,1,3,2,1,['e']),
+'D-03':F("Supprimer le plastique à usage unique",'P2',['M09','M10'],'m',1,1,3,1,1,['a']),
+'D-04':F("Valoriser les huiles usagées et réduire les déchets administratifs",'P2',['M14','M15'],'m',1,1,2,1,1,['g']),
+'D-05':F("Composter et valoriser les biodéchets",'P2',['G18','G20'],'g',1,2,3,3,2,['e','g']),
+'D-06':F("Donner et valoriser les invendus alimentaires",'P2',['G17'],'g',1,1,2,1,1,['c']),
+'D-07':F("Réemployer, réparer et donner le matériel",'P2',['G19'],'g',1,1,2,1,1,[]),
+'E-01':F("Maîtriser la consommation d'eau",'P3',['M21','M22','M24'],'m',1,1,3,1,1,['b','c']),
+'E-02':F("Assurer le traitement conforme des eaux usées",'P3',['M23'],'m',2,2,3,3,2,[]),
+'E-03':F("Aller plus loin sur la gestion de l'eau",'P3',['G25','G26','G27'],'g',2,2,3,3,2,['b']),
+'E-04':F("Réduire la consommation d'énergie au quotidien",'P3',['M28','M29','M30','M33'],'m',1,1,3,1,1,['c']),
+'E-05':F("Suivre et maintenir les équipements énergivores",'P3',['M31','M32'],'m',1,1,3,1,1,['f']),
+'E-06':F("Passer aux énergies renouvelables",'P3',['M34','G35','G36'],'x',3,2,4,3,3,['a']),
+'E-07':F("Adopter des équipements alternatifs et récupérer la chaleur",'P3',['G37','G38'],'g',3,3,3,3,3,[]),
+'A-01':F("Afficher les origines et adapter le menu aux saisons",'P4',['M39','M40'],'m',1,1,2,1,1,['d']),
+'A-02':F("Atteindre les seuils minimaux d'achat local et proposer une option végétarienne",'P4',['M41','M42'],'m',2,2,3,2,2,['d','a']),
+'A-03':F("Formaliser la politique d'achat responsable",'P4',['M43'],'m',1,1,2,1,1,[]),
+'A-04':F("Renforcer l'approvisionnement local et bio",'P4',['G44','G45','G46'],'g',2,2,4,3,2,['d','h']),
+'A-05':F("Acheter durable hors alimentation",'P4',['G47'],'g',1,1,2,2,1,[]),
+'A-06':F("Éthique des achats et bien-être animal",'P4',['G48'],'g',1,1,2,2,2,[]),
+'K-01':F("Informer les clients et afficher les engagements",'P5',['M49','M50'],'m',1,1,2,1,1,[]),
+'K-02':F("Animer des actions clients autour du développement durable",'P5',['G51'],'g',1,1,2,2,2,['h']),
+'K-03':F("Adopter une politique sociale responsable",'P5',['M52','M53','M54'],'m',1,1,3,1,1,[]),
+'K-04':F("Renforcer la politique sociale et l'ancrage local",'P5',['G55','G56','G57'],'g',1,1,2,2,2,['d']),
+'K-05':F("Gérer les espaces extérieurs sans pesticides et préserver la biodiversité",'P5',['M58','M59'],'m',1,1,2,1,1,['a']),
+'K-06':F("Promouvoir la mobilité durable",'P5',['M60','G62'],'x',1,1,2,1,1,[]),
+'K-07':F("Cultiver un jardin et végétaliser avec des espèces locales",'P5',['G61'],'g',2,2,3,3,2,['a'])
+};
+
+const BDG_LBL={a:'Contexte marocain',b:'Fort potentiel eau',c:'Économies immédiates',d:'Approv. local',e:'Champion déchets',f:'Facilement mesurable',g:'Partenaire local disponible',h:'Fort potentiel de réplication'};
+
+const PILLARS={
+  P1:{lbl:'Gouvernance & Management',col:'--vert',m:['M01','M02','M03','M04','M05'],g:['G06','G07','G08']},
+  P2:{lbl:'Gestion des déchets',col:'--terre',m:['M09','M10','M11','M12','M13','M14','M15'],g:['G16','G17','G18','G19','G20']},
+  P3:{lbl:'Eau & Énergie',col:'--eau',m:['M21','M22','M23','M24','M28','M29','M30','M31','M32','M33','M34'],g:['G25','G26','G27','G35','G36','G37','G38']},
+  P4:{lbl:'Approvisionnement responsable',col:'--sauge',m:['M39','M40','M41','M42','M43'],g:['G44','G45','G46','G47','G48']},
+  P5:{lbl:'Personnel & Opérations',col:'--safran',m:['M49','M50','M52','M53','M54','M58','M59','M60'],g:['G51','G55','G56','G57','G61','G62']}
+};
+
+const PCOL={G:'--vert',D:'--terre',E:'--eau',A:'--sauge',K:'--safran'};
+
+// Answer → criteria mapping (s=satisfied p=partial u=unmet)
+const ACM={
+  q1:{a:{M13:'p',G16:'p'},b:{M13:'p',G16:'u'},c:{M13:'u',G16:'u'}},
+  q2:{a:{M11:'p',M12:'p'},b:{M11:'p',M12:'u'},c:{M11:'u',M12:'u'}},
+  q3:{a:{M14:'s'},b:{M14:'p'},c:{M14:'u'}},
+  q4:{a:{G17:'p'},b:{G17:'u'},c:{G17:'u'}},
+  q5:{a:{M24:'p'},b:{M24:'p'},c:{M24:'u'}},
+  q6:{a:{M21:'p'},b:{M21:'p'},c:{M21:'u'}},
+  q7:{a:{M03:'p'},b:{M03:'p'},c:{M03:'u'}},
+  q8:{a:{M09:'p',M10:'p',G27:'p'},b:{M09:'p',M10:'u'},c:{M09:'u',M10:'u'}},
+  q9:{a:{M41:'p'},b:{M41:'p'},c:{M41:'u'}},
+  q10:{a:{G44:'p'},b:{G44:'u'},c:{G44:'u'}},
+  q11:{a:{M39:'p'},b:{M39:'p'},c:{M39:'u'}},
+  q12:{a:{M43:'p'},b:{M43:'p'},c:{M43:'u'}},
+  q13:{a:{M02:'p'},b:{M02:'p'},c:{M02:'u'}},
+  q14:{a:{M01:'p'},b:{M01:'u'},c:{M01:'u'}},
+  q15:{a:{M05:'p'},b:{M05:'p'},c:{M05:'u'}},
+  q16:{a:{M13:'p'},b:{M13:'p'},c:{}},
+  q17:{a:{M04:'p',M31:'p'},b:{M04:'p'},c:{M04:'u',M31:'u'}},
+  q18:{a:{G16:'p'},b:{G16:'u'},c:{}},
+  q19:{a:{G06:'p'},b:{G06:'u'},c:{G06:'u'}}
+};
+
+const RNK={s:2,p:1,u:0};
+const SCORED=['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10','q11','q12','q13','q14','q15','q16','q17','q18','q19'];
+let answers={}, lang='fr';
+
+/* ══ SELECTION ══ */
+function sel(q,v,sc){
+  answers[q]={v,sc};
+  document.getElementById(q).querySelectorAll('.q-btn').forEach(b=>b.classList.remove('sel-a','sel-b','sel-c'));
+  event.target.closest('.q-btn').classList.add('sel-'+v);
+  updateProg();
+}
+function updateProg(){
+  const d=SCORED.filter(q=>answers[q]).length;
+  const pct=Math.round(d/SCORED.length*100);
+  document.getElementById('progF').style.width=pct+'%';
+  document.getElementById('progL').textContent=d+' / 19';
+  document.getElementById('progP').textContent=pct+' %';
+}
+
+/* ══ CALCULATE ══ */
+function calculate(){
+  const miss=SCORED.filter(q=>!answers[q]).length;
+  if(miss>5){alert(T[lang].alertMsg.replace('{n}',miss));return;}
+  renderAll();
+  const r=document.getElementById('resWrap');
+  r.classList.add('show');
+  setTimeout(()=>r.scrollIntoView({behavior:'smooth',block:'start'}),80);
+}
+
+/* ══ DERIVE CRITERIA ══ */
+function deriveCriteria(){
+  const st={};
+  function upd(c,v){if(!st[c]||RNK[v]>RNK[st[c]])st[c]=v;}
+  SCORED.forEach(q=>{
+    if(!answers[q])return;
+    const m=ACM[q]?.[answers[q].v]||{};
+    Object.keys(m).forEach(c=>upd(c,m[c]));
+  });
+  return st;
+}
+
+/* ══ PILLAR SCORES ══ */
+function pillarScores(cs){
+  const out={};
+  Object.keys(PILLARS).forEach(p=>{
+    const pc=PILLARS[p];
+    const mAs=pc.m.filter(c=>cs[c]);
+    const mUn=mAs.filter(c=>cs[c]==='u').length;
+    const mOk=mAs.filter(c=>cs[c]==='s'||cs[c]==='p').length;
+    const mUnk=pc.m.length-mAs.length;
+    const gAs=pc.g.filter(c=>cs[c]);
+    const gOk=gAs.filter(c=>cs[c]==='s'||cs[c]==='p').length;
+    out[p]={mAs:mAs.length,mUn,mOk,mUnk,gAs:gAs.length,gOk,mTot:pc.m.length,gTot:pc.g.length};
+  });
+  return out;
+}
+
+/* ══ WEAKEST PILLAR ══ */
+function weakestPillar(ps){
+  let worst='P5',score=99;
+  Object.keys(ps).forEach(p=>{
+    const s=ps[p];
+    const r=s.mAs===0?-1:s.mOk/s.mAs;
+    if(r<score){score=r;worst=p;}
+  });
+  return worst;
+}
+
+/* ══ ACTIVATE FICHES ══ */
+function activateFiches(cs){
+  const out={};
+  Object.keys(FICHES).forEach(code=>{
+    const f=FICHES[code];
+    let mGap=0,mPrt=0,gGap=0,allUnk=true;
+    f.c.forEach(c=>{
+      const isM=c.startsWith('M');
+      const s=cs[c]||'k';
+      if(s!=='k')allUnk=false;
+      if(isM){if(s==='u')mGap++;else if(s==='p')mPrt++;}
+      else{if(s==='u'||s==='p')gGap++;}
+    });
+    if(mGap||mPrt||gGap||allUnk)out[code]={mGap,mPrt,gGap,allUnk};
+  });
+  return out;
+}
+
+/* ══ ASSIGN TIERS ══ */
+function assignTiers(act,weak){
+  const T={1:[],2:[],3:[],4:[],5:[],6:[],k:[]};
+  Object.keys(act).forEach(code=>{
+    const a=act[code],f=FICHES[code];
+    if(a.allUnk){T.k.push(code);return;}
+    if(a.mGap>0){T[1].push(code);return;}
+    if(a.mPrt>0){T[2].push(code);return;}
+    if(a.gGap>0){
+      const isWk=f.p===weak;
+      const isQW=f.cx<=1&&f.iv<=1&&f.ho===1;
+      const isHi=f.iv>=3||f.cx>=3;
+      if(isWk)T[3].push(code);
+      else if(isQW)T[4].push(code);
+      else if(isHi)T[6].push(code);
+      else T[5].push(code);
+    }
+  });
+  [1,2].forEach(t=>T[t].sort((a,b)=>(act[b].mGap-act[a].mGap)||FICHES[b].im-FICHES[a].im));
+  [3,4,5,6].forEach(t=>T[t].sort((a,b)=>FICHES[b].im-FICHES[a].im||FICHES[a].ro-FICHES[b].ro));
+  return T;
+}
+
+/* ══ LEVEL ══ */
+function computeLevel(score,cat,mGaps){
+  const TH={A:{br:6,si:10,go:15},B:{br:8,si:13,go:21},C:{br:10,si:19,go:29}};
+  const t=TH[cat]||TH.B;
+  if(mGaps>2)return{cls:'blocked',icon:'⊘',name:'Non attribuable',note:`${mGaps} critères M bloquants identifiés dans ce questionnaire`};
+  if(mGaps>0)return{cls:'bronze',icon:'🥉',name:'Bronze (incomplet)',note:`${mGaps} critère(s) M à résoudre · audit complet requis`};
+  if(score>=t.go)return{cls:'gold',icon:'🥇',name:'Or',note:'Estimation préliminaire · audit complet requis pour certification'};
+  if(score>=t.si)return{cls:'silver',icon:'🥈',name:'Argent',note:'Estimation préliminaire · audit complet requis pour certification'};
+  if(score>=t.br)return{cls:'bronze',icon:'🥉',name:'Bronze',note:'Estimation préliminaire · audit complet requis pour certification'};
+  return{cls:'blocked',icon:'◌',name:'En dessous du seuil Bronze',note:`Seuil Bronze cat. ${cat} : ${t.br} pts`};
+}
+
+function computeCat(){
+  const pos=document.getElementById('pf_pos').value;
+  const cov=parseInt(document.getElementById('pf_covers').value)||0;
+  if(pos==='A'||(pos===''&&cov>=150))return'A';
+  if(pos==='C')return'C';
+  return'B';
+}
+
+/* ══ DOT GAUGE ══ */
+function dots(val,max,col){
+  let d='';
+  for(let i=0;i<max;i++)d+=`<span class="dot ${i<val?'on':'off'}" style="color:${col}"></span>`;
+  return d;
+}
+
+/* ══ NOTATION CELL ══ */
+const IV_L=['','€','€€','€€€'];
+const CX_L=['','Facile','Modérée','Avancée'];
+const IM_L=['','Faible','Moyen','Élevé','Transform.'];
+const RO_L=['','Immédiat','< 1 an','1–3 ans','> 3 ans'];
+const HO_L=['','Rapide','Moyen terme','Long terme'];
+
+function ind(lbl,val,max,vLbl,col){
+  return`<div class="ind"><div class="ind-l">${lbl}</div><div class="ind-d">${dots(val,max,col)}</div><div class="ind-v" style="color:${col}">${vLbl}</div></div>`;
+}
+
+/* ══ RENDER ALL ══ */
+function renderAll(){
+  const cs=deriveCriteria();
+  const ps=pillarScores(cs);
+  const wk=weakestPillar(ps);
+  const act=activateFiches(cs);
+  const tiers=assignTiers(act,wk);
+
+  let total=0;
+  SCORED.forEach(q=>{if(answers[q])total+=answers[q].sc;});
+
+  const allM=Object.values(PILLARS).flatMap(p=>p.m);
+  const mGaps=allM.filter(c=>cs[c]==='u').length;
+  const mAss=allM.filter(c=>cs[c]).length;
+  const mUnk=allM.length-mAss;
+  const cat=computeCat();
+  const lv=computeLevel(total,cat,mGaps);
+  const gate=mGaps>0?'closed':mUnk>0?'indet':'open';
+
+  renderGate(gate,mGaps,mAss,mUnk);
+  renderScore(total,mGaps,mAss,cat);
+  renderLevel(lv);
+  renderPillars(ps);
+  renderGaps(tiers[1],act,cs);
+  renderReco(tiers,gate,wk);
+  renderQ20();
+}
+
+function renderGate(g,mG,mA,mU){
+  const cfg={
+    closed:{lbl:`CONDITION ÉLIMINATOIRE · ${mG} critère(s) M non satisfait(s)`,body:`<strong>${mG} critère(s) obligatoire(s) non satisfait(s)</strong> identifié(s) sur ${mA} critères M couverts par ce questionnaire. La certification est bloquée tant que ces lacunes persistent. <em>${mU} critères M supplémentaires requièrent un audit complet ARWM.</em>`},
+    indet:{lbl:`PÉRIMÈTRE ÉVALUÉ · Aucun critère M bloquant identifié`,body:`Aucune lacune M détectée dans le périmètre de ce questionnaire (${mA}/36 critères M évalués). <em>${mU} critères M ne sont pas couverts ici — un audit complet ARWM est requis avant toute certification.</em>`},
+    open:{lbl:`CRITÈRES M SATISFAITS`,body:`Tous les critères M évalués dans ce questionnaire sont satisfaits. Procédez à l'audit complet ARWM pour valider les 36 critères M obligatoires.`}
+  };
+  const c=cfg[g];
+  document.getElementById('rGate').innerHTML=`<div class="gate ${g}"><div class="gate-lbl">${c.lbl}</div><div class="gate-body">${c.body}</div></div>`;
+}
+
+function renderScore(sc,mG,mA,cat){
+  const TH={A:{br:6,si:10,go:15},B:{br:8,si:13,go:21},C:{br:10,si:19,go:29}};
+  const t=TH[cat]||TH.B;
+  const next=sc<t.br?`Seuil Bronze cat.${cat} : ${t.br}`:sc<t.si?`Seuil Argent : ${t.si}`:sc<t.go?`Seuil Or : ${t.go}`:'Seuil Or atteint';
+  document.getElementById('rScore').innerHTML=`
+    <div class="sc"><div class="sc-lbl">Score orientatif</div><div class="sc-val">${sc} / 38</div><div class="sc-sub">périmètre questionnaire</div></div>
+    <div class="sc"><div class="sc-lbl">Critères M évalués</div><div class="sc-val">${mA} / 36</div><div class="sc-sub">${mG} lacune(s) identifiée(s)</div></div>
+    <div class="sc"><div class="sc-lbl">Catégorie · ${cat}</div><div class="sc-val" style="font-size:13px;line-height:1.4">${next}</div><div class="sc-sub">seuils adaptés</div></div>`;
+}
+
+function renderLevel(lv){
+  document.getElementById('rLevel').innerHTML=`<div class="lvl ${lv.cls}"><div class="lvl-icon">${lv.icon}</div><div><div class="lvl-name">${lv.name}</div><div class="lvl-note">${lv.note}</div></div></div>`;
+}
+
+function renderPillars(ps){
+  let h='';
+  Object.keys(ps).forEach(p=>{
+    const s=ps[p],pc=PILLARS[p];
+    const col=`var(${pc.col})`;
+    const mF=s.mAs>0?Math.round(s.mOk/pc.mTot*65)+'%':'0%';
+    const gF=s.gAs>0?Math.round(s.gOk/pc.gTot*35)+'%':'0%';
+    const inf=s.mAs>0?`${s.mOk}/${s.mAs} M OK · ${s.mUnk} M non évalués`:`${s.mUnk} M non évalués`;
+    h+=`<div class="pbar-row">
+      <div class="pbar-meta"><span class="pbar-name" style="color:${col}">${pc.lbl}</span><span class="pbar-info">${inf}</span></div>
+      <div class="pbar-track"><div class="pbar-m" style="width:${mF};background:${col}"></div><div class="pbar-g" style="width:${gF};background:${col}"></div></div>
+      <div class="pbar-leg"><span>▪ M Obligatoires</span><span>▪ G Complémentaires</span></div>
+    </div>`;
+  });
+  document.getElementById('rPillars').innerHTML=h;
+}
+
+function renderGaps(t1,act,cs){
+  if(!t1.length){document.getElementById('rGaps').innerHTML='';return;}
+  let h='<div class="res-lbl">Critères M bloquants — fiches Tier 1</div><div class="mgap-list">';
+  t1.forEach(code=>{
+    const f=FICHES[code];
+    const tags=f.c.filter(c=>c.startsWith('M')&&(cs[c]==='u'||cs[c]==='p')).map(c=>`<span class="crit-tag ${cs[c]==='u'?'mu':'mp'}">${c}</span>`).join('');
+    h+=`<div class="mgap-item"><span class="mgap-code">${code}</span><div>${tags}<div class="mgap-title">${f.t}</div></div></div>`;
+  });
+  h+='</div>';
+  document.getElementById('rGaps').innerHTML=h;
+}
+
+function ficheCard(code){
+  const f=FICHES[code];
+  const col=`var(${PCOL[code[0]]||'--encre'})`;
+  const bdgs=f.b.map(bc=>`<span class="fbdg" style="border-color:${col};color:${col}">${BDG_LBL[bc]||bc}</span>`).join('');
+  const prio=f.tp==='m'?3:2;
+  return`<div class="fiche-card">
+    <div class="fiche-bar" style="background:${col}"></div>
+    <div class="fiche-inner">
+      <div class="fiche-hdr">
+        <span class="fiche-code">${code}</span>
+        <span class="fiche-plbl">${PILLARS[f.p]?.lbl||f.p}</span>
+      </div>
+      <div class="fiche-title">${f.t}</div>
+      <div class="notation">
+        ${ind('Invest.',f.iv,3,IV_L[f.iv],col)}
+        ${ind('Complexité',f.cx,3,CX_L[f.cx],col)}
+        ${ind('Impact',f.im,4,IM_L[f.im],col)}
+        ${ind('Retour',f.ro,4,RO_L[f.ro],col)}
+        ${ind('Horizon',f.ho,3,HO_L[f.ho],col)}
+        ${ind('Priorité',prio,3,prio===3?'Essentiel':'Recommandé',col)}
+      </div>
+      ${bdgs?`<div class="fiche-bdgs">${bdgs}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function renderReco(tiers,gate,wk){
+  const TM={
+    1:{lbl:'BLOQUANT',bg:'var(--terre)',fg:'#fff',desc:'Critères M non satisfaits — bloquent toute certification'},
+    2:{lbl:'PRIORITAIRE',bg:'var(--safran)',fg:'var(--encre)',desc:'Critères M partiellement couverts — à compléter'},
+    3:{lbl:'PILIER PRIORITAIRE',bg:'var(--eau)',fg:'#fff',desc:`Critères G dans le pilier le plus faible (${PILLARS[wk]?.lbl})`},
+    4:{lbl:'GAIN RAPIDE',bg:'var(--vert)',fg:'#fff',desc:'Actions G à faible investissement, horizon court'},
+    5:{lbl:'PROGRESSION',bg:'var(--sauge)',fg:'#fff',desc:'Critères G à effort modéré'},
+    6:{lbl:'FEUILLE DE ROUTE',bg:'var(--sp)',fg:'var(--encre-d)',desc:'Actions G à fort investissement — moyen et long terme'},
+    k:{lbl:'À ÉVALUER',bg:'var(--sp)',fg:'var(--encre-d)',desc:'Fiches hors périmètre de ce questionnaire — audit complet ARWM requis'}
+  };
+
+  let h='<div class="res-lbl">Fiches actions recommandées — par ordre de priorité</div>';
+  const active=gate==='closed'?[1,2]:[1,2,3,4,5,6];
+
+  active.forEach(t=>{
+    if(!tiers[t].length)return;
+    const m=TM[t];
+    h+=`<div class="tier-group">
+      <div class="tier-hdr"><span class="tier-bdg" style="background:${m.bg};color:${m.fg}">${m.lbl}</span><span class="tier-cnt">${tiers[t].length} fiche${tiers[t].length>1?'s':''}</span></div>
+      <div class="tier-desc">${m.desc}</div>
+      ${tiers[t].map(c=>ficheCard(c)).join('')}
+    </div>`;
+  });
+
+  if(gate==='closed'){
+    const col=[3,4,5,6].reduce((s,t)=>s+tiers[t].length,0);
+    if(col>0)h+=`<div class="tier-collapsed">${col} fiche(s) de progression (Tiers 3–6) disponibles une fois les critères M bloquants résolus.</div>`;
+  }
+
+  if(tiers.k.length){
+    const m=TM.k;
+    h+=`<div class="tier-group" style="margin-top:1.5rem;opacity:.72">
+      <div class="tier-hdr"><span class="tier-bdg" style="background:${m.bg};color:${m.fg}">${m.lbl}</span><span class="tier-cnt">${tiers.k.length} fiche${tiers.k.length>1?'s':''}</span></div>
+      <div class="tier-desc">${m.desc}</div>
+      <div class="unk-list">${tiers.k.map(code=>`<div class="unk-item"><span class="unk-code">${code}</span><span class="unk-title">${FICHES[code].t}</span></div>`).join('')}</div>
+    </div>`;
+  }
+
+  document.getElementById('rReco').innerHTML=h;
+}
+
+function renderQ20(){
+  const txt=document.getElementById('q20text').value.trim();
+  document.getElementById('rQ20').innerHTML=txt?`<div class="res-lbl">Première action identifiée (Q20)</div><div class="q20-res"><div class="q20-res-lbl">Votre point de départ</div><div class="q20-res-text">« ${txt} »</div></div>`:'';
+}
+
+function copyResult(){
+  const r=document.getElementById('pf_name').value||'—';
+  const sc=document.querySelector('.sc-val')?.textContent||'';
+  const lv=document.querySelector('.lvl-name')?.textContent||'';
+  const txt=`ARWM · Diagnostic Durabilité 2026\n${r}\n${'—'.repeat(28)}\nScore : ${sc}\nNiveau estimé : ${lv}\nDate : ${new Date().toLocaleDateString('fr-FR')}`;
+  navigator.clipboard.writeText(txt).catch(()=>{}).finally(()=>{
+    const b=document.getElementById('shareBtn');
+    b.textContent='✓ Résultats copiés';
+    setTimeout(()=>b.textContent='📋 Copier les résultats',2500);
+  });
+}
+
+/* ══════════ TRANSLATIONS ══════════ */
+const T={
+fr:{
+label:"ARWM · Association des Restaurateurs de Marrakech-Safi",
+title:"Questionnaire de Diagnostic Durabilité",
+sub:"20 questions · 15–20 min · À compléter par le gérant ou le responsable d'exploitation",
+intro:"Ce questionnaire a un seul objectif : <strong>vous positionner honnêtement là où vous en êtes aujourd'hui</strong>. Répondez en pensant à <strong>ce qui se passe en pratique</strong>, pas à ce qui est prévu.",
+note:"<strong>Comment répondre :</strong> Choisissez A, B ou C pour chaque question. En cas de doute, retenez ce qui décrit votre situation habituelle. <strong>Notation :</strong> A = 2 pts · B = 1 pt · C = 0 pt.",
+pfLabel:"Fiche d'identification",
+pf_name:"Nom du restaurant",pf_name_ph:"ex. Riad Al Baraka",
+pf_resp:"Nom du répondant",pf_resp_ph:"Prénom Nom",
+pf_role:"Fonction",pf_role_ph:"ex. Gérant, Chef",
+pf_date:"Date",pf_covers:"Couverts / jour",pf_covers_ph:"ex. 80",
+pf_type:"Catégorie",pos_0:"Sélectionner…",pos_A:"A — Fast-casual / Haut volume",pos_B:"B — Mid-scale / Traditionnel",pos_C:"C — Fine dining / Expérientiel",
+p1_title:"Gestion des déchets",p1_desc:"Ces questions évaluent la gestion de vos déchets alimentaires, le tri en cuisine et la valorisation de vos flux sortants.",
+q1_t:"Avez-vous une idée approximative du volume de déchets alimentaires produits chaque jour ?",q1_n:"Ex. : estimation en kg, nombre de bacs vidés, ou suivi écrit même informel.",
+q1a:"Oui, nous le mesurons ou l'estimons régulièrement",q1b:"Nous avons une vague idée, mais rien de formalisé",q1c:"Non, aucune visibilité",
+q2_t:"Comment vos déchets sont-ils gérés en fin de service ?",q2_n:"Décrivez ce qui se passe réellement.",
+q2a:"Tri actif : organique, recyclables secs et ordures ménagères séparés",q2b:"Tri partiel ou irrégulier selon les équipes",q2c:"Tout part dans un seul bac",
+q3_t:"Que faites-vous avec vos huiles de friture usagées ?",
+q3a:"Collecte organisée par un prestataire spécialisé (Ekogeste ou équivalent)",q3b:"Nous cherchons une solution, rien n'est encore en place",q3c:"Jetées avec les ordures ou dans les canalisations",
+q4_t:"Que faites-vous avec les invendus alimentaires en fin de service ?",
+q4a:"Valorisés : redistribués, transformés ou via une plateforme (Foodeals, Savey)",q4b:"En partie valorisés, en partie jetés — sans système défini",q4c:"Jetés systématiquement à la fin de chaque service",
+p2_title:"Eau & plastique",p2_desc:"Marrakech fait face à un stress hydrique documenté. Ces questions évaluent vos pratiques de consommation d'eau et de réduction du plastique.",
+q5_t:"Connaissez-vous votre facture d'eau mensuelle approximative ?",q5_n:"Il ne s'agit pas du chiffre exact, mais d'avoir un repère.",
+q5a:"Oui, nous la suivons et connaissons notre consommation mensuelle",q5b:"Nous avons une idée approximative, mais aucun suivi régulier",q5c:"Non, aucune visibilité sur notre consommation d'eau",
+q6_t:"Des équipements d'économie d'eau sont-ils installés dans votre cuisine et vos sanitaires ?",q6_n:"Ex. : aérateurs de robinet, robinets à poussoir, chasse d'eau double débit.",
+q6a:"Oui, plusieurs équipements en place (cuisine et/ou sanitaires)",q6b:"Un ou deux équipements, mais pas de façon systématique",q6c:"Aucun équipement spécifique d'économie d'eau",
+q7_t:"Avez-vous vérifié les fuites d'eau dans votre établissement au cours des six derniers mois ?",
+q7a:"Oui, vérification récente — aucune fuite non réparée",q7b:"Pas de vérification systématique, mais on intervient sur les problèmes visibles",q7c:"Non, nous n'avons jamais vérifié spécifiquement les fuites",
+q8_t:"Avez-vous réduit le plastique à usage unique (bouteilles, emballages, sachets) ?",q8_n:"Ex. : système d'eau filtrée Castalie, passage au kraft pour la livraison.",
+q8a:"Oui, plastique à usage unique majoritairement éliminé ou remplacé",q8b:"Nous avons commencé à réduire mais c'est encore partiel",q8c:"Non, bouteilles et emballages plastique standard toujours en place",
+p3_title:"Approvisionnement responsable",p3_desc:"Ces questions portent sur l'origine de vos produits, la qualité de vos relations fournisseurs et votre capacité à tracer ce que vous servez.",
+q9_t:"Quelle part de vos achats alimentaires provient de fournisseurs locaux ou régionaux ?",q9_n:"Local = Marrakech et wilaya ; régional = Maroc.",
+q9a:"Plus de 60 % de nos achats alimentaires sont locaux ou régionaux",q9b:"Entre 30 % et 60 %, selon la disponibilité et la saison",q9c:"Moins de 30 %, ou nous n'avons pas la visibilité pour répondre",
+q10_t:"Avez-vous une relation directe avec au moins un producteur ou une ferme qui vous approvisionne régulièrement ?",
+q10a:"Oui, au moins une relation directe avec un producteur identifié",q10b:"Nous connaissons nos grossistes, mais pas directement les producteurs",q10c:"Achats exclusivement en marché ou via des intermédiaires non identifiés",
+q11_t:"Votre carte signale-t-elle l'origine locale de certains produits ou des plats de saison ?",q11_n:"Même une mention simple comme « légumes du marché » compte.",
+q11a:"Oui, l'origine ou le caractère saisonnier est mentionné sur la carte",q11b:"Nous en parlons oralement aux clients, mais ce n'est pas écrit",q11c:"Aucune mention de ce type dans notre communication client",
+q12_t:"Avez-vous listé vos fournisseurs en identifiant ceux qui sont locaux, régionaux ou importés ?",q12_n:"Une liste informelle compte — l'important est d'avoir la visibilité.",
+q12a:"Oui, nous connaissons l'origine géographique de nos principaux fournisseurs",q12b:"Partiellement — pour certaines catégories mais pas pour l'ensemble",q12c:"Non, nous n'avons pas cette visibilité sur nos fournisseurs",
+p4_title:"Équipes & opérations",p4_desc:"La durabilité ne tient que si elle est portée par les équipes et intégrée dans les routines quotidiennes. Ces questions évaluent votre organisation interne.",
+q13_t:"Vos équipes ont-elles reçu un briefing sur au moins une pratique liée à la durabilité au cours des 12 derniers mois ?",q13_n:"Même un briefing informel de 10 minutes en réunion d'équipe compte.",
+q13a:"Oui, au moins une session de formation ou de sensibilisation formalisée",q13b:"Des consignes ont été données oralement, mais aucune session dédiée",q13c:"Non, aucune formation ou sensibilisation spécifique",
+q14_t:"Y a-t-il une personne identifiée dans votre établissement qui suit les initiatives liées à la durabilité ?",
+q14a:"Oui, une personne est clairement désignée et active sur ces sujets",q14b:"C'est géré collectivement, sans responsable désigné",q14c:"Non, personne ne suit spécifiquement ces sujets",
+q15_t:"Avez-vous des procédures écrites ou affichées pour le tri, l'eau ou l'extinction des équipements en fin de service ?",
+q15a:"Oui, des procédures écrites existent et sont affichées ou accessibles à l'équipe",q15b:"Des instructions verbales existent, mais rien d'écrit ou d'affiché",q15c:"Aucune procédure de ce type dans notre établissement",
+q16_t:"Utilisez-vous un système de gestion des commandes ou d'inventaire en cuisine pour anticiper les achats ?",q16_n:"Ex. : logiciel de caisse avec inventaire, tableur Excel, système OCHI.",
+q16a:"Oui, un outil est en place et utilisé quotidiennement",q16b:"Oui mais de façon irrégulière, ou l'outil est en cours de déploiement",q16c:"Non, tout est géré de tête ou de façon non tracée",
+p5_title:"Mesure & reporting",p5_desc:"Ce qui n'est pas mesuré ne peut pas être amélioré. Ces questions évaluent votre capacité à suivre votre performance.",
+q17_t:"Suivez-vous au moins un indicateur de consommation de ressources de façon mensuelle (eau, énergie, déchets, coût alimentaire) ?",
+q17a:"Oui, au moins deux indicateurs sont suivis mensuellement",q17b:"Nous suivons un indicateur, parfois, de façon irrégulière",q17c:"Non, aucun suivi systématique d'indicateurs",
+q18_t:"Avez-vous estimé le coût du gaspillage alimentaire dans votre établissement (en % des achats ou en MAD par mois) ?",
+q18a:"Oui, nous avons une estimation et elle guide nos décisions d'achat",q18b:"Nous avons une impression générale, mais rien de quantifié",q18c:"Non, nous n'avons jamais quantifié le coût du gaspillage",
+q19_t:"Avez-vous exploré une démarche de certification, de label ou de partenariat durabilité (ARWM, label national, etc.) ?",
+q19a:"Oui, une démarche est en cours ou un label est déjà obtenu",q19b:"Nous avons manifesté de l'intérêt, mais aucune démarche formelle n'a commencé",q19c:"Non, nous n'avons jamais exploré cette piste",
+q20_t:"En une phrase, quelle est l'habitude opérationnelle dans votre cuisine que vous savez pourrait changer demain ?",
+q20_n:"Question ouverte — non notée. Votre réponse devient votre première action.",q20_lbl:"Votre réponse",q20_ph:"ex. On pourrait arrêter de jeter le pain en fin de service…",
+calcBtn:"Calculer mon profil →",
+alertMsg:"Veuillez répondre à davantage de questions avant de calculer votre profil. Il reste {n} questions sans réponse.",
+keyTitle:"Grille de lecture — niveaux de maturité",
+br_range:"0 à 13 points",br_desc:"Actions comportementales uniquement. Aucun investissement requis. Objectif : 30 jours.",
+si_range:"14 à 26 points",si_desc:"Systèmes opérationnels à structurer. Investissement modéré. Bases existantes à consolider.",
+go_range:"27 à 40 points",go_desc:"Leadership et certification. Partenariats actifs, traçabilité, désignation ARWM Green.",
+plLbl:"Les 5 piliers du référentiel ARWM 2026",
+pl1:"P1 — Gouvernance & Management · Politique, pilotage, amélioration continue",
+pl2:"P2 — Gestion des déchets · Tri, invendus, huiles usagées, recyclage",
+pl3:"P3 — Eau & Énergie · Consommation, fuites, équipements, renouvelables",
+pl4:"P4 — Approvisionnement responsable · Sourcing local, producteurs directs, carte",
+pl5:"P5 — Personnel & Opérations · Formation, mobilité, biodiversité, social",
+footnote:"Un score faible n'est pas un jugement — il indique la marge de progression la plus importante. <strong>Ce questionnaire couvre 17 des 36 critères M obligatoires.</strong> Un audit complet ARWM est requis pour toute certification formelle."
+},
+en:{
+label:"ARWM · Association of Restaurateurs of Marrakech-Safi",
+title:"Sustainability Diagnostic Questionnaire",
+sub:"20 questions · 15–20 min · To be completed by the manager or operations lead",
+intro:"This questionnaire has one objective: <strong>to position you honestly where you are today</strong>. Answer based on <strong>what actually happens in practice</strong>, not what is planned.",
+note:"<strong>How to answer:</strong> Choose A, B, or C for each question. When in doubt, select what best describes your usual situation. <strong>Scoring:</strong> A = 2 pts · B = 1 pt · C = 0 pts.",
+pfLabel:"Identification",
+pf_name:"Restaurant name",pf_name_ph:"e.g. Riad Al Baraka",
+pf_resp:"Respondent name",pf_resp_ph:"First Last",
+pf_role:"Role",pf_role_ph:"e.g. Manager, Chef",
+pf_date:"Date",pf_covers:"Covers / day",pf_covers_ph:"e.g. 80",
+pf_type:"Category",pos_0:"Select…",pos_A:"A — Fast-casual / High volume",pos_B:"B — Mid-scale / Traditional",pos_C:"C — Fine dining / Experiential",
+p1_title:"Waste Management",p1_desc:"These questions assess your food waste management, kitchen sorting, and valorisation of outgoing waste streams.",
+q1_t:"Do you have an approximate idea of the volume of food waste produced daily?",q1_n:"E.g.: weight estimate in kg, number of bins emptied, or informal written log.",
+q1a:"Yes, we measure or estimate it regularly",q1b:"We have a rough idea, but nothing formalized",q1c:"No, no visibility on our food waste",
+q2_t:"How is your waste handled at the end of service?",q2_n:"Describe what actually happens.",
+q2a:"Active sorting: organic, dry recyclables and general waste separated",q2b:"Partial or inconsistent sorting depending on team",q2c:"Everything goes in one bin",
+q3_t:"What do you do with your used cooking oil?",
+q3a:"Collected by a specialized service (Ekogeste or equivalent)",q3b:"We are looking for a solution, nothing in place yet",q3c:"Discarded with general waste or poured down drains",
+q4_t:"What do you do with unsold food at the end of service?",
+q4a:"Valorized: redistributed, transformed, or via a platform (Foodeals, Savey)",q4b:"Partly valorized, partly discarded — no defined system",q4c:"Systematically discarded at end of service",
+p2_title:"Water & Plastic",p2_desc:"Marrakech faces documented water stress. These questions assess your water consumption practices and single-use plastic reduction.",
+q5_t:"Do you know your approximate monthly water bill?",q5_n:"Not the exact figure — just whether you have a benchmark.",
+q5a:"Yes, we monitor it and know our monthly consumption",q5b:"We have a rough idea, but no regular tracking",q5c:"No, no visibility on our water consumption",
+q6_t:"Are water-saving devices installed in your kitchen and bathrooms?",q6_n:"E.g.: tap aerators, push-button taps, dual-flush toilets.",
+q6a:"Yes, multiple devices in place (kitchen and/or bathrooms)",q6b:"One or two devices, but not systematically",q6c:"No specific water-saving equipment",
+q7_t:"Have you checked for water leaks in your establishment in the past six months?",
+q7a:"Yes, recent check — no unrepaired leaks",q7b:"No systematic check, but we act on visible problems",q7c:"We have never specifically checked for leaks",
+q8_t:"Have you reduced single-use plastic (bottles, packaging, sachets)?",q8_n:"E.g.: filtered water system (Castalie), kraft packaging for delivery.",
+q8a:"Yes, single-use plastic mostly eliminated or replaced",q8b:"We have started reducing but it is still partial",q8c:"No, standard plastic bottles and packaging still in place",
+p3_title:"Sustainable Procurement",p3_desc:"These questions address the origin of your products, your supplier relationships, and your ability to trace what you serve.",
+q9_t:"What share of your food purchases comes from local or regional suppliers?",q9_n:"Local = Marrakech and province; regional = Morocco.",
+q9a:"More than 60% of our food purchases are local or regional",q9b:"Between 30% and 60%, depending on availability and season",q9c:"Less than 30%, or we do not have visibility on this",
+q10_t:"Do you have a direct relationship with at least one producer or farm that supplies you regularly?",
+q10a:"Yes, at least one direct relationship with an identified producer",q10b:"We know our wholesalers, but not the producers directly",q10c:"We buy exclusively at market or through unidentified intermediaries",
+q11_t:"Does your menu indicate the local origin of certain products or flag seasonal dishes?",q11_n:"Even a simple mention like 'market vegetables' counts.",
+q11a:"Yes, origin or seasonal character is mentioned on the menu",q11b:"We communicate this verbally to customers, but it is not written",q11c:"No mention of this kind in our customer communication",
+q12_t:"Have you mapped your suppliers, identifying which are local, regional, or imported?",q12_n:"An informal list counts — the important thing is to have visibility.",
+q12a:"Yes, we know the geographic origin of our main suppliers",q12b:"Partially — for some categories but not all",q12c:"No, we do not have this visibility on our suppliers",
+p4_title:"Staff & Operations",p4_desc:"Sustainability only holds if it is carried by teams and embedded in daily routines. These questions assess your internal organization.",
+q13_t:"Have your teams received any training or briefing on at least one sustainability practice in the past 12 months?",q13_n:"Even an informal 10-minute team briefing counts.",
+q13a:"Yes, at least one formalized training or awareness session",q13b:"Verbal instructions were given, but no dedicated session",q13c:"No specific training or sensitization has taken place",
+q14_t:"Is there an identified person in your establishment who monitors sustainability or resource-saving initiatives?",
+q14a:"Yes, one person is clearly designated and active on these topics",q14b:"It is managed collectively, with no designated owner",q14c:"No one specifically monitors these topics",
+q15_t:"Do you have written or posted procedures (SOPs, checklists) for waste sorting, water use, or equipment shutdown?",
+q15a:"Yes, written procedures exist and are posted or accessible to the team",q15b:"Verbal instructions exist, but nothing is written or displayed",q15c:"No procedures of this kind in our establishment",
+q16_t:"Do you use an order management or inventory system in the kitchen to anticipate purchasing?",q16_n:"E.g.: POS with inventory, Excel spreadsheet, OCHI system.",
+q16a:"Yes, a tool is in place and used daily",q16b:"Yes but irregularly, or the tool is being deployed",q16c:"No, everything is managed from memory without tracking",
+p5_title:"Measurement & Reporting",p5_desc:"What is not measured cannot be improved. These questions assess your capacity to track performance.",
+q17_t:"Do you track at least one resource consumption indicator monthly (water, energy, waste, food cost)?",
+q17a:"Yes, at least two indicators are tracked monthly",q17b:"We track one indicator, occasionally, irregularly",q17c:"No, no systematic tracking of performance indicators",
+q18_t:"Have you estimated the cost of food waste in your establishment (as % of food purchases or MAD per month)?",
+q18a:"Yes, we have an estimate and it guides our purchasing decisions",q18b:"We have a general sense, but nothing quantified",q18c:"We have never quantified the cost of food waste",
+q19_t:"Have you engaged with any sustainability certification, label, or partnership program (ARWM, national label, etc.)?",
+q19a:"Yes, a process is underway or a label has been obtained",q19b:"We have expressed interest, but no formal process has begun",q19c:"We have never explored this",
+q20_t:"In one sentence: what is the single operational habit in your kitchen that you know could change tomorrow?",
+q20_n:"Open question — not scored. Your answer becomes your first action.",q20_lbl:"Your answer",q20_ph:"e.g. We could stop throwing away bread at end of service…",
+calcBtn:"Calculate my profile →",
+alertMsg:"Please answer more questions before calculating your profile. {n} questions are still unanswered.",
+keyTitle:"Reference guide — maturity levels",
+br_range:"0 to 13 points",br_desc:"Behavioral actions only. No investment required. Goal: 30 days.",
+si_range:"14 to 26 points",si_desc:"Operational systems to structure. Moderate investment. Build on existing foundations.",
+go_range:"27 to 40 points",go_desc:"Leadership and certification. Active partnerships, traceability, ARWM Green designation.",
+plLbl:"The 5 pillars of the ARWM 2026 framework",
+pl1:"P1 — Governance & Management · Policy, monitoring, continuous improvement",
+pl2:"P2 — Waste Management · Sorting, surplus, used oils, recycling",
+pl3:"P3 — Water & Energy · Consumption, leaks, equipment, renewables",
+pl4:"P4 — Sustainable Procurement · Local sourcing, direct producers, menu",
+pl5:"P5 — Staff & Operations · Training, mobility, biodiversity, social policy",
+footnote:"A low score is not a judgment — it indicates the greatest margin for improvement. <strong>This questionnaire covers 17 of the 36 mandatory M criteria.</strong> A full ARWM audit is required for formal certification."
+},
+ar:{
+label:"ARWM · جمعية مطاعم جهة مراكش-آسفي",
+title:"استبيان التشخيص البيئي للمطاعم",
+sub:"20 سؤالاً · 15-20 دقيقة · يملأه المدير أو المسؤول التشغيلي",
+intro:"هذا الاستبيان له هدف واحد: <strong>تحديد موقعك الحقيقي اليوم</strong>. أجب بناءً على <strong>ما يحدث فعلاً</strong>، لا على ما هو مخطط.",
+note:"<strong>طريقة الإجابة:</strong> اختر A أو B أو C لكل سؤال. عند التردد، اختر ما يصف وضعك المعتاد. <strong>التنقيط:</strong> A = 2 · B = 1 · C = 0.",
+pfLabel:"بطاقة التعريف",
+pf_name:"اسم المطعم",pf_name_ph:"مثال: رياض البركة",
+pf_resp:"اسم المجيب",pf_resp_ph:"الاسم الكامل",
+pf_role:"المنصب",pf_role_ph:"مثال: مدير، طاهٍ",
+pf_date:"التاريخ",pf_covers:"عدد الأغطية يومياً",pf_covers_ph:"مثال: 80",
+pf_type:"فئة المؤسسة",pos_0:"اختر…",pos_A:"A — وجبات سريعة / حجم كبير",pos_B:"B — متوسط / تقليدي",pos_C:"C — راقٍ / تجريبي",
+p1_title:"إدارة النفايات",p1_desc:"تقييم إدارتك للنفايات الغذائية والفرز في المطبخ وتثمين التدفقات الخارجة.",
+q1_t:"هل لديك فكرة تقريبية عن حجم النفايات الغذائية المنتجة يومياً؟",q1_n:"مثال: تقدير بالكيلوغرام أو عدد الحاويات المفرغة.",
+q1a:"نعم، نقيسها أو نقدرها بانتظام",q1b:"لدينا فكرة تقريبية لكن لا شيء رسمي",q1c:"لا، ليس لدينا أي تصور",
+q2_t:"كيف تتم إدارة النفايات في نهاية الخدمة؟",q2_n:"صف ما يحدث فعلاً.",
+q2a:"فرز فعّال: عضوي وقابل للتدوير ونفايات عامة منفصلة",q2b:"فرز جزئي أو غير منتظم",q2c:"كل شيء في حاوية واحدة",
+q3_t:"ماذا تفعل بزيت القلي المستعمل؟",
+q3a:"جمع منظم من قِبَل مزود متخصص (Ekogeste أو ما يعادله)",q3b:"نبحث عن حل لكن لا شيء في مكانه",q3c:"يُرمى مع النفايات أو يُصب في الصرف",
+q4_t:"ماذا تفعل بالطعام غير المباع في نهاية الخدمة؟",
+q4a:"يُثمَّن: يُعاد توزيعه أو يُحوَّل أو عبر منصة (Foodeals, Savey)",q4b:"جزء يُثمَّن وجزء يُرمى دون نظام",q4c:"يُرمى بشكل منهجي",
+p2_title:"الماء والبلاستيك",p2_desc:"يواجه مراكش ضغطاً موثقاً على الموارد المائية. تقييم ممارساتك في استهلاك الماء وتقليل البلاستيك.",
+q5_t:"هل تعرف فاتورتك المائية الشهرية التقريبية؟",q5_n:"لا يُشترط المبلغ الدقيق — مجرد وجود مرجع.",
+q5a:"نعم، نتابعها ونعرف استهلاكنا الشهري",q5b:"لدينا فكرة تقريبية لكن لا متابعة منتظمة",q5c:"لا، لا رؤية لدينا",
+q6_t:"هل ثُبِّتت أجهزة توفير الماء في مطبخك ومراحيضك؟",q6_n:"مثال: مُهوِّيات الصنابير، صنابير بالضغط، مراحيض ذات تدفق مزدوج.",
+q6a:"نعم، عدة أجهزة مثبتة",q6b:"جهاز أو جهازان فقط ليس بشكل منهجي",q6c:"لا أجهزة خاصة لتوفير الماء",
+q7_t:"هل تحققت من تسرب المياه في مؤسستك خلال الستة أشهر الماضية؟",
+q7a:"نعم، فحص حديث — لا تسرب غير محلول",q7b:"لا فحص منهجي لكن نتدخل عند المشاكل الواضحة",q7c:"لا، لم نتحقق من التسرب قط",
+q8_t:"هل قلّصت استخدام البلاستيك أحادي الاستخدام (قناني، عبوات، أكياس)؟",q8_n:"مثال: نظام ماء مفلتر Castalie، ورق كرافت في التوصيل.",
+q8a:"نعم، البلاستيك أحادي الاستخدام مُلغى أو مُستبدل في معظمه",q8b:"بدأنا في التقليص لكنه لا يزال جزئياً",q8c:"لا، القناني والعبوات البلاستيكية لا تزال مستخدمة",
+p3_title:"التوريد المسؤول",p3_desc:"تتعلق هذه الأسئلة بمصدر منتجاتك وعلاقاتك مع الموردين.",
+q9_t:"ما نسبة مشترياتك الغذائية من موردين محليين أو إقليميين؟",q9_n:"محلي = مراكش والإقليم؛ إقليمي = المغرب.",
+q9a:"أكثر من 60% محلية أو إقليمية",q9b:"بين 30% و60% حسب التوافر والموسم",q9c:"أقل من 30% أو ليس لدينا الرؤية",
+q10_t:"هل لديك علاقة مباشرة مع منتج أو مزرعة تزودك بانتظام دون وسيط؟",
+q10a:"نعم، علاقة مباشرة واحدة على الأقل مع منتج محدد",q10b:"نعرف تجار الجملة لكن ليس المنتجين مباشرة",q10c:"نشتري حصراً من السوق أو وسطاء غير محددين",
+q11_t:"هل تشير قائمتك إلى المصدر المحلي لبعض المنتجات أو الأطباق الموسمية؟",q11_n:"حتى إشارة بسيطة مثل «خضار السوق» تُحتسب.",
+q11a:"نعم، المصدر أو الطابع الموسمي مذكور في القائمة",q11b:"نتحدث عن ذلك شفهياً لكنه غير مكتوب",q11c:"لا إشارة من هذا القبيل",
+q12_t:"هل وضعت قائمة بموردينك محدداً فيها المحليون والإقليميون والمستوردون؟",q12_n:"قائمة غير رسمية تكفي.",
+q12a:"نعم، نعرف الأصل الجغرافي لموردينا الرئيسيين",q12b:"جزئياً لبعض الفئات",q12c:"لا، ليس لدينا هذه الرؤية",
+p4_title:"الفرق والعمليات",p4_desc:"الاستدامة لا تصمد إلا إذا حملتها الفرق ودُمجت في الروتين اليومي.",
+q13_t:"هل تلقّت فرقك توعية حول ممارسة بيئية خلال الـ 12 شهراً الماضية؟",q13_n:"حتى إحاطة غير رسمية مدتها 10 دقائق تُحتسب.",
+q13a:"نعم، جلسة تكوين أو توعية رسمية واحدة على الأقل",q13b:"أُعطيت توجيهات شفهية لكن لا جلسة مخصصة",q13c:"لا، لم يجرِ أي تكوين أو توعية خاصة",
+q14_t:"هل يوجد شخص محدد يتابع مبادرات الاستدامة في مؤسستك؟",
+q14a:"نعم، شخص محدد بوضوح ونشط في هذه المواضيع",q14b:"يُدار بشكل جماعي دون مسؤول محدد",q14c:"لا أحد يتابع هذه المواضيع",
+q15_t:"هل لديك إجراءات مكتوبة أو معلقة للفرز أو الماء أو إطفاء المعدات نهاية الخدمة؟",
+q15a:"نعم، إجراءات مكتوبة معلقة أو متاحة للفريق",q15b:"توجد تعليمات شفهية لكن لا شيء مكتوب",q15c:"لا إجراءات من هذا القبيل",
+q16_t:"هل تستخدم نظاماً لإدارة المخزون في المطبخ للتخطيط للمشتريات؟",q16_n:"مثال: برنامج نقطة بيع، جدول Excel، نظام OCHI.",
+q16a:"نعم، أداة مثبتة ومستخدمة يومياً",q16b:"نعم لكن بشكل غير منتظم",q16c:"لا، كل شيء يُدار عن طريق الذاكرة",
+p5_title:"القياس والتقارير",p5_desc:"ما لا يُقاس لا يمكن تحسينه.",
+q17_t:"هل تتابع مؤشراً واحداً على الأقل لاستهلاك الموارد شهرياً؟",
+q17a:"نعم، مؤشران اثنان على الأقل يُتابعان شهرياً",q17b:"نتابع مؤشراً واحداً أحياناً وبشكل غير منتظم",q17c:"لا، لا متابعة منهجية",
+q18_t:"هل قدّرت تكلفة الهدر الغذائي في مؤسستك؟",
+q18a:"نعم، لدينا تقدير ويوجه قرارات الشراء",q18b:"لدينا إحساس عام لكن لا شيء مُكمَّم",q18c:"لا، لم نحسب قط تكلفة الهدر",
+q19_t:"هل استكشفت أي مسار شهادة أو علامة أو شراكة في مجال الاستدامة؟",
+q19a:"نعم، مسار جارٍ أو علامة حُصل عليها",q19b:"أبدينا اهتماماً لكن لم يبدأ أي مسار رسمي",q19c:"لا، لم نستكشف هذا المسار قط",
+q20_t:"في جملة واحدة: ما هي العادة التشغيلية في مطبخك التي تعرف أنها يمكن أن تتغير غداً؟",
+q20_n:"سؤال مفتوح — غير محصور. إجابتك تصبح أول إجراء لك.",q20_lbl:"إجابتك",q20_ph:"مثال: يمكننا التوقف عن رمي الخبز في نهاية الخدمة…",
+calcBtn:"احسب ملفي الشخصي →",
+alertMsg:"يرجى الإجابة على المزيد من الأسئلة قبل حساب ملفك. تبقى {n} أسئلة دون إجابة.",
+keyTitle:"دليل القراءة — مستويات النضج",
+br_range:"0 إلى 13 نقطة",br_desc:"إجراءات سلوكية فقط. لا استثمار مطلوب. الهدف: 30 يوماً.",
+si_range:"14 إلى 26 نقطة",si_desc:"أنظمة تشغيلية تحتاج إلى هيكلة. استثمار معتدل.",
+go_range:"27 إلى 40 نقطة",go_desc:"قيادة وشهادة. شراكات فعّالة وتتبع وتسمية ARWM Green.",
+plLbl:"ركائز دفتر المواصفات الخمس — ARWM 2026",
+pl1:"P1 — الحوكمة والإدارة · سياسة، رصد، تحسين مستمر",
+pl2:"P2 — إدارة النفايات · الفرز، الفائض، الزيوت، إعادة التدوير",
+pl3:"P3 — الماء والطاقة · الاستهلاك، التسرب، المعدات، الطاقات المتجددة",
+pl4:"P4 — التوريد المسؤول · مصادر محلية، منتجون مباشرون، القائمة",
+pl5:"P5 — الفرق والعمليات · تكوين، تنقل، تنوع بيولوجي، سياسة اجتماعية",
+footnote:"الدرجة المنخفضة ليست حكماً — بل تدل على أكبر هامش للتحسن. <strong>يغطي هذا الاستبيان 17 من أصل 36 معياراً إلزامياً.</strong> التدقيق الكامل ARWM مطلوب لأي شهادة رسمية."
+}};
+
+/* ══ LANG SWITCH ══ */
+function setLang(l){
+  lang=l;
+  document.documentElement.lang=l;
+  document.documentElement.dir=l==='ar'?'rtl':'ltr';
+  document.querySelectorAll('.lb-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.lb-btn[onclick="setLang('${l}')"]`).classList.add('active');
+  const t=T[l];
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.getAttribute('data-i18n');
+    if(t[k]!==undefined)el.innerHTML=t[k];
+  });
+  document.querySelectorAll('[data-phi]').forEach(el=>{
+    const k=el.getAttribute('data-phi');
+    if(t[k]!==undefined)el.placeholder=t[k];
+  });
+  updateProg();
+  if(document.getElementById('resWrap').classList.contains('show'))renderAll();
+}
+
+setLang('fr');
+</script>
+</body>
+</html>
